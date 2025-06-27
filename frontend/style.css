@@ -134,20 +134,4 @@ button:hover {
   background-color: #357bd8;
 }
 
-#animation-container {
-  margin-top: 40px;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  max-width: 650px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-canvas {
-  border: 1px solid #ccc;
-  background-color: #f9f9f9;
-}
-
 /* Proctor video and status are inline styled in HTML */
