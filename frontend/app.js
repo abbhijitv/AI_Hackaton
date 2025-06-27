@@ -3,6 +3,7 @@ let acknowledged = false;
 let currentSpeech;
 let isChatOpen = false;
 
+// Chatbot Questions
 const questions = [
   "What is a GPU?",
   "Why use Python for data science?",
@@ -11,17 +12,33 @@ const questions = [
   "What is reinforcement learning?"
 ];
 
+// Elements
 const video = document.getElementById('proctor-video');
 const statusDiv = document.getElementById('proctor-status');
+const startActivitiesBtn = document.getElementById('start-activities-btn');
+const warpActivities = document.getElementById('warp-activities');
 
-function toggleChat() {
-  isChatOpen = !isChatOpen;
-  const chatbot = document.getElementById("chatbot");
-  chatbot.style.display = isChatOpen ? "flex" : "none";
-
-  if (isChatOpen) showQuestionOptions();
+// === Webcam Control ===
+async function startWebcam() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+    video.style.display = 'block';
+    video.play();
+  } catch (err) {
+    console.error("Camera access error:", err);
+    alert("Cannot access webcam. Please allow camera permissions.");
+  }
 }
 
+function stopWebcam() {
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(track => track.stop());
+  }
+  video.style.display = 'none';
+}
+
+// === Proctoring & Acknowledgement ===
 function toggleProctoring() {
   if (!proctoringEnabled) {
     if (!acknowledged) {
@@ -30,12 +47,15 @@ function toggleProctoring() {
     }
     proctoringEnabled = true;
     document.getElementById('proctor-btn').innerText = "Disable Proctoring";
-    startProctoring();
+    startWebcam();            // start webcam when enabling proctoring
+    showStartActivitiesButton();
   } else {
     proctoringEnabled = false;
     acknowledged = false;
     document.getElementById('proctor-btn').innerText = "Enable Proctoring";
-    stopProctoring();
+    stopWebcam();             // stop webcam when disabling proctoring
+    hideStartActivitiesButton();
+    warpActivities.style.display = 'none';
   }
 }
 
@@ -50,53 +70,31 @@ function closeAckModal() {
 document.getElementById('ack-agree-btn').addEventListener('click', () => {
   acknowledged = true;
   closeAckModal();
-  toggleProctoring();
+  proctoringEnabled = true;
+  document.getElementById('proctor-btn').innerText = "Disable Proctoring";
+  startWebcam();
+  showStartActivitiesButton();
 });
 
-async function startProctoring() {
-  video.style.display = "block";
-  statusDiv.style.display = "block";
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = stream;
-    video.play();
-
-    await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-    runFaceDetectionLoop();
-  } catch (err) {
-    // Only log error; don't show alert if camera is working
-    console.error("Camera access error:", err);
-    statusDiv.style.display = "none";
-  }
+// Show start activities button after agreeing
+function showStartActivitiesButton() {
+  document.getElementById('start-activities-container').style.display = 'block';
 }
 
-function stopProctoring() {
-  let stream = video.srcObject;
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-  }
-  video.style.display = "none";
-  statusDiv.style.display = "none";
-  clearInterval(faceDetectionInterval);
+function hideStartActivitiesButton() {
+  document.getElementById('start-activities-container').style.display = 'none';
 }
 
-let faceDetectionInterval;
+// === Chatbot toggle ===
+function toggleChat() {
+  isChatOpen = !isChatOpen;
+  const chatbot = document.getElementById("chatbot");
+  chatbot.style.display = isChatOpen ? "flex" : "none";
 
-function runFaceDetectionLoop() {
-  const options = new faceapi.TinyFaceDetectorOptions();
-
-  faceDetectionInterval = setInterval(async () => {
-    const detections = await faceapi.detectAllFaces(video, options);
-    if (detections.length === 0) {
-      statusDiv.innerText = "⚠️ No face detected! Please stay in view.";
-    } else {
-      statusDiv.innerText = "✅ Face detected. Good!";
-    }
-  }, 3000);
+  if (isChatOpen) showQuestionOptions();
 }
 
-// Speech & Chatbot Functions
+// === Speech & Chatbot Functions ===
 function speak(text) {
   if (currentSpeech) {
     speechSynthesis.cancel();
@@ -178,50 +176,86 @@ document.getElementById("chatbot").style.display = "none";
 video.style.display = "none";
 statusDiv.style.display = "none";
 
-const canvas = document.getElementById('cpu-gpu-canvas');
-const ctx = canvas.getContext('2d');
-
-const ballCount = 10;
-const ballRadius = 10;
-const startX = 50;
-const endX = 500;
-const spacingY = 25;
-
-function drawBalls(xPositions, color) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = color;
-  for (let i = 0; i < ballCount; i++) {
-    ctx.beginPath();
-    ctx.arc(xPositions[i], 40 + i * spacingY, ballRadius, 0, Math.PI * 2);
-    ctx.fill();
+// === CPU vs GPU Quiz ===
+const quizQuestions = [
+  {
+    question: "Rendering complex 3D graphics for a video game.",
+    correct: "GPU",
+    explanation: "GPUs excel at parallel processing, making them ideal for rendering graphics efficiently."
+  },
+  {
+    question: "Running your operating system and handling daily tasks.",
+    correct: "CPU",
+    explanation: "CPUs handle general-purpose computing and sequential tasks, perfect for OS operations."
+  },
+  {
+    question: "Training a deep learning neural network on a large dataset.",
+    correct: "GPU",
+    explanation: "GPUs accelerate training by performing many operations simultaneously."
+  },
+  {
+    question: "Compiling source code for software development.",
+    correct: "CPU",
+    explanation: "Compilation involves complex logic and sequential operations, which CPUs handle well."
+  },
+  {
+    question: "Performing complex scientific simulations that require massive parallel computations.",
+    correct: "GPU",
+    explanation: "GPUs can run thousands of threads concurrently, speeding up simulations."
   }
+];
+
+let currentQuizIndex = 0;
+
+const questionText = document.getElementById('question-text');
+const optionsContainer = document.getElementById('options-container');
+const feedbackDiv = document.getElementById('feedback');
+const nextQuestionBtn = document.getElementById('next-question-btn');
+
+function loadQuizQuestion() {
+  const q = quizQuestions[currentQuizIndex];
+  questionText.textContent = q.question;
+  feedbackDiv.textContent = '';
+  feedbackDiv.style.color = 'black';
+  nextQuestionBtn.style.display = 'none';
+
+  optionsContainer.innerHTML = `
+    <button onclick="submitAnswer('CPU')">CPU</button>
+    <button onclick="submitAnswer('GPU')">GPU</button>
+  `;
 }
 
-function runCpuAnimation() {
-  let frame = 0;
-  const xPositions = Array(ballCount).fill(startX);
-  const interval = setInterval(() => {
-    if (frame < ballCount) {
-      xPositions[frame] = endX;
-      drawBalls(xPositions, 'blue');
-      frame++;
-    } else {
-      clearInterval(interval);
-    }
-  }, 400);
+function submitAnswer(selected) {
+  const q = quizQuestions[currentQuizIndex];
+  if (selected === q.correct) {
+    feedbackDiv.style.color = 'green';
+    feedbackDiv.innerHTML = `🎉 Correct! ${q.explanation}`;
+  } else {
+    feedbackDiv.style.color = 'red';
+    feedbackDiv.innerHTML = `❌ Incorrect. The right answer is <strong>${q.correct}</strong>. ${q.explanation}`;
+  }
+  // Disable buttons after answer
+  [...optionsContainer.children].forEach(btn => btn.disabled = true);
+  nextQuestionBtn.style.display = 'inline-block';
 }
 
-function runGpuAnimation() {
-  let progress = 0;
-  const steps = 20;
-  const interval = setInterval(() => {
-    if (progress <= 1) {
-      const x = startX + (endX - startX) * progress;
-      const xPositions = Array(ballCount).fill(x);
-      drawBalls(xPositions, 'green');
-      progress += 1 / steps;
-    } else {
-      clearInterval(interval);
-    }
-  }, 100);
-}
+nextQuestionBtn.addEventListener('click', () => {
+  currentQuizIndex++;
+  if (currentQuizIndex < quizQuestions.length) {
+    loadQuizQuestion();
+  } else {
+    // Quiz finished
+    questionText.textContent = "🎉 Great job! You finished the quiz.";
+    optionsContainer.innerHTML = '';
+    feedbackDiv.textContent = '';
+    nextQuestionBtn.style.display = 'none';
+  }
+});
+
+// Start activities button click
+startActivitiesBtn.addEventListener('click', () => {
+  warpActivities.style.display = 'block';
+  startActivitiesBtn.style.display = 'none';
+  currentQuizIndex = 0;
+  loadQuizQuestion();
+});
