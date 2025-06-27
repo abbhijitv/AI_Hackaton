@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Tutor with Proctoring</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Welcome to GPU AI Tutor Activities</h1>
+  <p>Games and fun learning activities will appear here soon!</p>
+
+  <!-- Proctoring Button on main page -->
+  <button id="proctor-btn" onclick="toggleProctoring()" style="position: fixed; top: 20px; left: 20px; z-index: 1100;">
+    Enable Proctoring
+  </button>
+
+  <!-- Webcam video top-right -->
+  <video id="proctor-video" width="320" height="240" autoplay muted 
+         style="display:none; position: fixed; top: 20px; right: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index: 1100;">
+  </video>
+
+  <!-- Proctoring status below webcam (hidden initially) -->
+  <div id="proctor-status"
+       style="display:none; position: fixed; top: 270px; right: 20px; font-weight: bold; background: white; padding: 5px 10px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); z-index: 1100;">
+  </div>
+
+  <!-- CPU vs GPU Animation Section -->
+  <div id="animation-container">
+    <h2>CPU vs GPU Animation</h2>
+    <canvas id="cpu-gpu-canvas" width="600" height="300"></canvas>
+    <div style="text-align: center; margin-top: 10px;">
+      <button onclick="runCpuAnimation()">Run CPU Animation</button>
+      <button onclick="runGpuAnimation()">Run GPU Animation</button>
+    </div>
+  </div>
+
+  <!-- Floating Chat Icon bottom-right -->
+  <div id="chat-icon" onclick="toggleChat()">
+    🧠💬
+  </div>
+
+  <!-- Chatbot Container bottom-right -->
+  <div id="chatbot">
+    <div id="chat-header">
+      <strong>AI Tutor Chat</strong>
+      <button onclick="toggleChat()">✕</button>
+    </div>
+
+    <div id="chat-log"></div>
+    <div id="question-options"></div>
+    <div id="next-step"></div>
+  </div>
+
+  <!-- Acknowledgement Modal -->
+  <div id="ack-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); 
+      justify-content:center; align-items:center; z-index:2000;">
+    <div style="background:white; padding: 20px; border-radius: 10px; max-width: 400px; text-align:center;">
+      <h2>Proctoring Acknowledgement</h2>
+      <p>By clicking "I Agree", you acknowledge that your webcam will be used for proctoring during this session.</p>
+      <button id="ack-agree-btn" style="margin-top: 15px; padding: 10px 20px; border:none; background:#4a90e2; color:white; border-radius:5px; cursor:pointer;">I Agree</button>
+    </div>
+  </div>
+
+  <!-- Load face-api.js & webgazer.js from CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.9.1/dist/face-api.min.js"></script>
+  <script defer src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+
+  <!-- App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

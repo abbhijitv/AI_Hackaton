@@ -1,0 +1,153 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
+  padding: 20px;
+  margin: 0;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 50px;
+}
+
+#chat-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4a90e2;
+  color: white;
+  font-size: 28px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 60px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+  transition: background 0.3s;
+}
+
+#chat-icon:hover {
+  background-color: #357bd8;
+}
+
+#chatbot {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 350px;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  padding: 10px;
+  display: none;
+  flex-direction: column;
+  z-index: 999;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+#chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+#chat-log {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.chat-message {
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 80%;
+  font-size: 14px;
+}
+
+.user {
+  background-color: #d1e7ff;
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.bot {
+  background-color: #f1f1f1;
+  margin-right: auto;
+}
+
+button {
+  margin: 5px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background-color: #4a90e2;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #357bd8;
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 320px;
+  text-align: center;
+}
+
+.modal-content button {
+  margin: 8px 6px 0 6px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: none;
+  background-color: #4a90e2;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.modal-content button:hover {
+  background-color: #357bd8;
+}
+
+#animation-container {
+  margin-top: 40px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+canvas {
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+/* Proctor video and status are inline styled in HTML */
