@@ -24,16 +24,6 @@
        style="display:none; position: fixed; top: 270px; right: 20px; font-weight: bold; background: white; padding: 5px 10px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); z-index: 1100;">
   </div>
 
-  <!-- CPU vs GPU Animation Section -->
-  <div id="animation-container">
-    <h2>CPU vs GPU Animation</h2>
-    <canvas id="cpu-gpu-canvas" width="600" height="300"></canvas>
-    <div style="text-align: center; margin-top: 10px;">
-      <button onclick="runCpuAnimation()">Run CPU Animation</button>
-      <button onclick="runGpuAnimation()">Run GPU Animation</button>
-    </div>
-  </div>
-
   <!-- Floating Chat Icon bottom-right -->
   <div id="chat-icon" onclick="toggleChat()">
     🧠💬
@@ -61,11 +51,32 @@
     </div>
   </div>
 
-  <!-- Load face-api.js & webgazer.js from CDN -->
+  <!-- Start Activities Button (hidden initially) -->
+  <div id="start-activities-container" style="display:none; text-align:center; margin-top: 40px;">
+    <button id="start-activities-btn" style="padding: 15px 30px; font-size: 18px; border-radius: 10px; border:none; background:#4a90e2; color:white; cursor:pointer;">
+      Start Activities
+    </button>
+  </div>
+
+  <!-- Warp Activities Container (hidden initially) -->
+  <div id="warp-activities" style="display:none; margin-top: 30px; padding: 20px; border: 2px solid #4a90e2; border-radius: 10px; max-width: 700px; margin-left:auto; margin-right:auto;">
+    <h2>GPU AI Tutor Activities</h2>
+    <p>Try this fun quiz: Is the following task better suited for a CPU or a GPU?</p>
+
+    <div id="quiz-container">
+      <div id="question-text" style="font-weight: bold; margin-bottom: 15px;"></div>
+      <div id="options-container" style="margin-bottom: 15px;"></div>
+      <div id="feedback" style="margin-bottom: 15px; font-style: italic;"></div>
+      <button id="next-question-btn" style="display:none; padding: 8px 16px; border-radius: 20px; background:#4a90e2; color:white; border:none; cursor:pointer;">
+        Next Question
+      </button>
+    </div>
+  </div>
+
+  <!-- Load face-api.js & webgazer.js from CDN (optional) -->
   <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.9.1/dist/face-api.min.js"></script>
   <script defer src="https://webgazer.cs.brown.edu/webgazer.js"></script>
 
-  <!-- App Logic -->
   <script src="app.js"></script>
 </body>
 </html>
