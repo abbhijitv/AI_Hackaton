@@ -2,81 +2,268 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Tutor with Proctoring</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
   <h1>Welcome to GPU AI Tutor Activities</h1>
   <p>Games and fun learning activities will appear here soon!</p>
 
-  <!-- Proctoring Button on main page -->
-  <button id="proctor-btn" onclick="toggleProctoring()" style="position: fixed; top: 20px; left: 20px; z-index: 1100;">
+  <!-- Proctoring Button -->
+  <button id="proctor-btn" type="button"
+          style="position:fixed; top:20px; left:20px; z-index:1100;">
     Enable Proctoring
   </button>
 
-  <!-- Webcam video top-right -->
-  <video id="proctor-video" width="320" height="240" autoplay muted 
-         style="display:none; position: fixed; top: 20px; right: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index: 1100;">
+  <!-- Webcam video -->
+  <video id="proctor-video" width="320" height="240" autoplay muted
+         style="display:none; position:fixed; top:20px; right:20px;
+                border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.3); z-index:1100;">
   </video>
-
-  <!-- Proctoring status below webcam (hidden initially) -->
   <div id="proctor-status"
-       style="display:none; position: fixed; top: 270px; right: 20px; font-weight: bold; background: white; padding: 5px 10px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); z-index: 1100;">
+       style="display:none; position:fixed; top:270px; right:20px;
+              background:white; padding:5px 10px; border-radius:8px;
+              font-weight:bold; box-shadow:0 0 10px rgba(0,0,0,0.1); z-index:1100;">
   </div>
 
-  <!-- Floating Chat Icon bottom-right -->
-  <div id="chat-icon" onclick="toggleChat()">
+  <!-- Floating Chat Icon -->
+  <div id="chat-icon" onclick="toggleChat()"
+       style="position:fixed; bottom:20px; right:20px; font-size:28px; cursor:pointer; z-index:1100;"
+       role="button" aria-label="Toggle Chat">
     🧠💬
   </div>
 
-  <!-- Chatbot Container bottom-right -->
-  <div id="chatbot">
-    <div id="chat-header">
+  <!-- AI Tutor Chatbot -->
+  <div id="chatbot" style="display:none; position:fixed; bottom:70px; right:20px;
+                           width:320px; max-height:420px; background:white;
+                           border:1px solid #ccc; border-radius:10px;
+                           box-shadow:0 4px 10px rgba(0,0,0,0.15); z-index:1100;
+                           overflow-y:auto; font-family:sans-serif;"
+       role="region" aria-live="polite" aria-label="AI Tutor Chatbot">
+
+    <!-- Header + Close -->
+    <div style="display:flex; justify-content:space-between; align-items:center;
+                padding:10px; border-bottom:1px solid #eee; background:#f7f7f7;">
       <strong>AI Tutor Chat</strong>
-      <button onclick="toggleChat()">✕</button>
+      <button onclick="toggleChat()" style="background:none; border:none; font-size:20px; cursor:pointer;">✕</button>
     </div>
 
-    <div id="chat-log"></div>
-    <div id="question-options"></div>
-    <div id="next-step"></div>
+    <!-- Initial Bot Message with Notebook Links -->
+    <div id="chat-log" style="padding:10px;">
+      <div style="background:#f1f1f1; padding:8px; border-radius:6px; margin-bottom:8px; line-height:1.4;">
+        Hello, if you need any help, click on
+        <a href="notebook1.html" target="_blank">Notebook 1</a>
+        or
+        <a href="notebook2.html" target="_blank">Notebook 2</a>
+        for help regarding CPU and GPU.
+      </div>
+    </div>
+
+    <!-- Containers for dynamic chat content -->
+    <div id="question-options" style="padding:10px;"></div>
+    <div id="next-step" style="padding:10px;"></div>
   </div>
 
   <!-- Acknowledgement Modal -->
-  <div id="ack-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); 
-      justify-content:center; align-items:center; z-index:2000;">
-    <div style="background:white; padding: 20px; border-radius: 10px; max-width: 400px; text-align:center;">
+  <div id="ack-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:2000;">
+    <div style="background:white; padding:20px; border-radius:10px; max-width:400px; text-align:center;">
       <h2>Proctoring Acknowledgement</h2>
       <p>By clicking "I Agree", you acknowledge that your webcam will be used for proctoring during this session.</p>
-      <button id="ack-agree-btn" style="margin-top: 15px; padding: 10px 20px; border:none; background:#4a90e2; color:white; border-radius:5px; cursor:pointer;">I Agree</button>
+      <button id="ack-agree-btn" type="button"
+              style="margin-top:15px; padding:10px 20px; background:#4a90e2;
+                     color:white; border:none; border-radius:5px; cursor:pointer;">
+        I Agree
+      </button>
     </div>
   </div>
 
-  <!-- Start Activities Button (hidden initially) -->
-  <div id="start-activities-container" style="display:none; text-align:center; margin-top: 40px;">
-    <button id="start-activities-btn" style="padding: 15px 30px; font-size: 18px; border-radius: 10px; border:none; background:#4a90e2; color:white; cursor:pointer;">
+  <!-- Start Activities Button -->
+  <div style="text-align:center; margin-top:40px;">
+    <button id="start-activities-btn" type="button"
+            style="display:none; padding:15px 30px; font-size:18px; background:#4a90e2;
+                   color:white; border:none; border-radius:10px; cursor:pointer;">
       Start Activities
     </button>
   </div>
 
-  <!-- Warp Activities Container (hidden initially) -->
-  <div id="warp-activities" style="display:none; margin-top: 30px; padding: 20px; border: 2px solid #4a90e2; border-radius: 10px; max-width: 700px; margin-left:auto; margin-right:auto;">
-    <h2>GPU AI Tutor Activities</h2>
-    <p>Try this fun quiz: Is the following task better suited for a CPU or a GPU?</p>
-
+  <!-- CPU vs GPU Quiz -->
+  <div id="warp-activities"
+       style="display:none; margin:30px auto; padding:20px; border:2px solid #4a90e2;
+              border-radius:10px; max-width:700px;">
+    <h2 id="quiz-title">CPU vs GPU Quiz</h2>
+    <p id="quiz-prompt">Is the following task better suited for a CPU or a GPU?</p>
     <div id="quiz-container">
-      <div id="question-text" style="font-weight: bold; margin-bottom: 15px;"></div>
-      <div id="options-container" style="margin-bottom: 15px;"></div>
-      <div id="feedback" style="margin-bottom: 15px; font-style: italic;"></div>
-      <button id="next-question-btn" style="display:none; padding: 8px 16px; border-radius: 20px; background:#4a90e2; color:white; border:none; cursor:pointer;">
+      <div id="question-text" style="font-weight:bold; margin-bottom:15px;"></div>
+      <div id="options-container" style="margin-bottom:15px;"></div>
+      <div id="feedback" style="margin-bottom:15px; font-style:italic;"></div>
+      <button id="next-question-btn" type="button"
+              style="display:none; padding:8px 16px; background:#4a90e2; color:white;
+                     border:none; border-radius:20px; cursor:pointer;">
         Next Question
       </button>
     </div>
   </div>
 
-  <!-- Load face-api.js & webgazer.js from CDN (optional) -->
-  <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.9.1/dist/face-api.min.js"></script>
-  <script defer src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+  <!-- Level Complete -->
+  <div id="level-complete-screen" style="display:none; text-align:center; margin-top:40px;">
+    <h2>Quiz Complete!</h2>
+    <p id="user-level-display" style="font-weight:bold;"></p>
+    <button id="to-word-problems-btn" type="button"
+            style="margin:10px; padding:15px 30px; background:#4a90e2; color:white;
+                   border:none; border-radius:10px; cursor:pointer;">
+      Word Problem Questions
+    </button>
+    <button id="to-code-questions-btn" type="button"
+            style="margin:10px; padding:15px 30px; background:#4a90e2; color:white;
+                   border:none; border-radius:10px; cursor:pointer;">
+      Code Related Questions
+    </button>
+  </div>
 
-  <script src="app.js"></script>
+  <!-- Word Problems -->
+  <div id="word-problems-container"
+       style="display:none; margin:30px auto; padding:20px; border:2px solid #4a90e2;
+              border-radius:10px; max-width:700px;">
+    <h2>Word Problem Questions</h2>
+    <div id="word-question-text" style="font-weight:bold; margin-bottom:15px;"></div>
+    <div id="word-options-container" style="margin-bottom:15px;"></div>
+    <div id="word-feedback" style="margin-bottom:15px; font-style:italic;"></div>
+    <button id="word-next-question-btn" type="button"
+            style="display:none; padding:8px 16px; background:#4a90e2; color:white;
+                   border:none; border-radius:20px; cursor:pointer;">
+      Next Question
+    </button>
+  </div>
+
+  <!-- Code Related Question -->
+  <div id="code-questions-container"
+       style="display:none; margin:30px auto; padding:20px; border:2px solid #4a90e2;
+              border-radius:10px; max-width:700px;">
+    <h2 style="text-align:center; margin-bottom:20px;">Code Related Question</h2>
+    <p style="font-weight:bold; line-height:1.4;">
+      Consider the QR decomposition performance for different matrix sizes.
+      Below is a Python snippet that measures runtimes using NumPy (CPU) and CuPy (GPU).
+      You can either click “Run Code” to reveal the CPU/GPU buttons,
+      or select a single size below and click “Run Benchmark.”
+    </p>
+    <pre style="background:#f7f7f7; padding:10px; border-radius:5px; overflow-x:auto;">
+for size in [64, 128, 256, 512, 1024, 2048]:
+    print("\nInput Matrix size: %d x %d" % (size, size))
+    for xp in [np, cp]:
+        A = xp.random.uniform(low=-1.0, high=1.0, size=(size,size)).astype(xp.float32)
+        xp.linalg.qr(A)      # warm-up to exclude JIT
+        start = perf_counter()
+        xp.linalg.qr(A)
+        cp.cuda.Device().synchronize()
+        end = perf_counter()
+        print(xp.__name__, '%.6f' % (end - start))
+    del A
+    </pre>
+    <button id="run-code-btn"
+            style="margin-top:10px; padding:8px 16px; background:#4a90e2; color:white;
+                   border:none; border-radius:5px; cursor:pointer;">
+      Run Code
+    </button>
+    <div id="run-on-buttons" style="display:none; margin-top:10px; display:flex; gap:10px;">
+      <button id="run-cpu-btn"
+              style="flex:1; padding:8px 16px; background:#4a90e2; color:white;
+                     border:none; border-radius:5px;">
+        Run on CPU
+      </button>
+      <button id="run-gpu-btn"
+              style="flex:1; padding:8px 16px; background:#4a90e2; color:white;
+                     border:none; border-radius:5px;">
+        Run on GPU
+      </button>
+    </div>
+    <div id="cpu-status" style="margin-top:10px; font-style:italic;"></div>
+    <hr style="margin:20px 0; border-color:#ddd;">
+    <div id="benchmark-controls" style="display:none; align-items:center; gap:10px;">
+      <label for="matrix-size-input" style="font-weight:bold;">Select Matrix Size:</label>
+      <select id="matrix-size-input" style="padding:5px;">
+        <option value="64">64</option>
+        <option value="128">128</option>
+        <option value="256">256</option>
+        <option value="512">512</option>
+        <option value="1024">1024</option>
+        <option value="2048">2048</option>
+      </select>
+      <button id="run-benchmark-btn"
+              style="padding:8px 16px; background:#4a90e2; color:white; border:none;
+                     border-radius:5px; cursor:pointer;">
+        Run Benchmark
+      </button>
+    </div>
+    <pre id="benchmark-output"
+         style="display:none; background:#f0f0f0; padding:10px; border-radius:5px; margin-top:10px;
+                max-height:200px; overflow-y:auto;">
+    </pre>
+    <div id="benchmark-bars" style="display:none; margin-top:10px;">
+      <div style="margin-bottom:8px;">
+        <strong style="display:inline-block; width:40px;">CPU:</strong>
+        <div class="bar" style="display:inline-block; width:80%; height:16px; background:#eee; border-radius:8px; overflow:hidden;">
+          <div id="cpu-bar-fill" class="fill" style="width:0%; height:100%; background:#4a90e2; transition:width 1s ease;"></div>
+        </div>
+      </div>
+      <div>
+        <strong style="display:inline-block; width:40px;">GPU:</strong>
+        <div class="bar" style="display:inline-block; width:80%; height:16px; background:#eee; border-radius:8px; overflow:hidden;">
+          <div id="gpu-bar-fill" class="fill" style="width:0%; height:100%; background:#4a90e2; transition:width 1s ease;"></div>
+        </div>
+      </div>
+    </div>
+    <button id="finish-btn"
+            style="display:none; margin-top:20px; padding:8px 16px; background:#4a90e2; color:white;
+                   border:none; border-radius:20px; cursor:pointer;">
+      Finish
+    </button>
+  </div>
+
+  <!-- Congrats Screen -->
+  <div id="congrats-screen" style="display:none; text-align:center; margin-top:40px;">
+    <h2>Congratulations on Completing the Questions!</h2>
+    <p>Great job! 🎉</p>
+    <button id="restart-btn" type="button"
+            style="margin-top:20px; padding:15px 30px; background:#4a90e2; color:white;
+                   border:none; border-radius:10px; cursor:pointer;">
+      Start Over
+    </button>
+  </div>
+
+  <!-- Try Again Screen -->
+  <div id="try-again-screen" style="display:none; text-align:center; margin-top:40px;">
+    <h2>Almost There!</h2>
+    <p>You missed some questions. Please try the word problems again.</p>
+    <button id="try-again-btn" type="button"
+            style="margin-top:20px; padding:15px 30px; background:#4a90e2; color:white;
+                   border:none; border-radius:10px; cursor:pointer;">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Load app.js -->
+  <script src="app.js" defer></script>
+  <script>
+    const initialMessage = 'Hello, if you need any help, click on Notebook 1 or 2 for help regarding CPU and GPU.';
+
+    function speak(text) {
+      if (!window.speechSynthesis) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      speechSynthesis.speak(utter);
+    }
+
+    function toggleChat() {
+      const chat = document.getElementById("chatbot");
+      const isOpening = chat.style.display === "none";
+      chat.style.display = isOpening ? "block" : "none";
+      if (isOpening) {
+        speak(initialMessage);
+      }
+    }
+  </script>
 </body>
 </html>
